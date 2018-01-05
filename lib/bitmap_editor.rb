@@ -23,6 +23,8 @@ class BitmapEditor
           build_matrix(*args)
         when "S"
           return print_result
+        when "C"
+          clear_matrix
         when "L"
           draw_pixel(*args)
         when "V"
@@ -62,6 +64,9 @@ class BitmapEditor
     @matrix = Matrix.build(rows, columns) {|m| WHITE}
   end
 
+  def clear_matrix
+    @matrix = Matrix.build(rows, columns) {|m| WHITE}
+  end
 
   def draw_pixel(column, row, color)
     update_matrix(color, {
