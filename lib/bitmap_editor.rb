@@ -24,13 +24,13 @@ class BitmapEditor
         when "S"
           return print_result
         when "C"
-          clear_matrix
+          ensure_matrix { clear_matrix }
         when "L"
-          draw_pixel(*args)
+          ensure_matrix { draw_pixel(*args) }
         when "V"
-          draw_vertical_segment(*args)
+          ensure_matrix { draw_vertical_segment(*args) }
         when "H"
-          draw_horizontal_segment(*args)
+          ensure_matrix { draw_horizontal_segment(*args) }
         else
           raise InvalidCommandError.new("Unrecognised command `#{cmd}` - accepts I, S, C, L, V, H")
       end
@@ -114,6 +114,12 @@ class BitmapEditor
     @matrix = Matrix[*arr]
   end
 
+  def ensure_matrix(&block)
+    raise MatrixNotPresentError.new("Tried to run a command on an image without creating it first :(") if matrix.nil?
+
+    yield
+  end
+
   def print_result
     puts "There is no image" and return if matrix.nil?
 
@@ -129,3 +135,4 @@ end
 class InvalidCommandError < StandardError; end
 class InvalidArgumentError < StandardError; end
 class MatrixNoDupError < StandardError; end
+class MatrixNotPresentError < StandardError; end
