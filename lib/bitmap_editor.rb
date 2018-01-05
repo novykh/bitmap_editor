@@ -1,4 +1,7 @@
+require 'matrix'
+
 class BitmapEditor
+  WHITE = "O"
 
   CMD_ARGS_REGEXES = {
     "I" => /^[1-9][0-9]*\s[1-9][0-9]*$/,
@@ -7,6 +10,8 @@ class BitmapEditor
     "H" => /^[1-9][0-9]*\s[1-9][0-9]*\s[1-9][0-9]*\s[A-Z]$/
   }.freeze
 
+  attr_reader :matrix, :rows, :columns
+
   def run(file)
     raise StandardError.new("Please provide correct file") if file.nil? || !File.exists?(file)
 
@@ -14,6 +19,8 @@ class BitmapEditor
       cmd, args = parse_line(line, i + 1)
 
       case cmd
+        when "I"
+          build_matrix(*args)
         else
           raise InvalidCommandError.new("Unrecognised command `#{cmd}` - accepts I, S, C, L, V, H")
       end
@@ -38,7 +45,16 @@ class BitmapEditor
     raise InvalidArgumentError.new("Invalid arguments for `#{cmd}` command - line #{line_num}") if regex && args !~ regex
     true
   end
+
+  def build_matrix(c, r)
+    raise MatrixNoDupError.new("Cannot create multiple images, sorry :)") unless matrix.nil?
+    @rows = r.to_i
+    @columns = c.to_i
+
+    @matrix = Matrix.build(rows, columns) {|m| WHITE}
+  end
 end
 
 class InvalidCommandError < StandardError; end
 class InvalidArgumentError < StandardError; end
+class MatrixNoDupError < StandardError; end
