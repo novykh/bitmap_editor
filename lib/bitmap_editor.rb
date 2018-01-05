@@ -21,6 +21,8 @@ class BitmapEditor
       case cmd
         when "I"
           build_matrix(*args)
+        when "S"
+          return print_result
         else
           raise InvalidCommandError.new("Unrecognised command `#{cmd}` - accepts I, S, C, L, V, H")
       end
@@ -52,6 +54,13 @@ class BitmapEditor
     @columns = c.to_i
 
     @matrix = Matrix.build(rows, columns) {|m| WHITE}
+  end
+
+  def print_result
+    puts "There is no image" and return if matrix.nil?
+
+    matrix_string = matrix.to_a.map{|r| r.join("")}.join("\n")
+    puts matrix_string
   end
 end
 
