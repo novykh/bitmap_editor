@@ -1,4 +1,25 @@
 #!/usr/bin/env ruby
 require './lib/bitmap_editor'
 
-BitmapEditor.new.run ARGV.first
+# Refactoring - no use of matrix
+# require './lib/bitmap_editor_2'
+
+BitmapEditor.new.run ARGV.first # comment out to run the benchmark below
+
+# # Before run make sure to comment out the `puts` in the classes :)
+# require 'benchmark'
+# iterations = 100_000
+# Benchmark.bm do |bm|
+#   bm.report do
+#     iterations.times do
+#       BitmapEditor2.new.run ARGV.first
+#     end
+#   end
+
+#   bm.report do
+#     iterations.times do
+#       BitmapEditor.new.run ARGV.first
+#     end
+#   end
+# end
+
