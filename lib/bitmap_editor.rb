@@ -125,6 +125,7 @@ class BitmapEditor
 
     matrix_string = matrix.to_a.map{|r| r.join("")}.join("\n")
     puts matrix_string
+    return matrix_string
   end
 
   def coerce_to_cell_idx(num)
