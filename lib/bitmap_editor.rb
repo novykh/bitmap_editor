@@ -7,7 +7,8 @@ class BitmapEditor
     "I" => /^[1-9][0-9]*\s[1-9][0-9]*$/,
     "L" => /^[1-9][0-9]*\s[1-9][0-9]*\s[A-Z]$/,
     "V" => /^[1-9][0-9]*\s[1-9][0-9]*\s[1-9][0-9]*\s[A-Z]$/,
-    "H" => /^[1-9][0-9]*\s[1-9][0-9]*\s[1-9][0-9]*\s[A-Z]$/
+    "H" => /^[1-9][0-9]*\s[1-9][0-9]*\s[1-9][0-9]*\s[A-Z]$/,
+    "F" => /^[1-9][0-9]*\s[1-9][0-9]*\s[A-Z]$/,
   }.freeze
 
   attr_reader :matrix, :rows, :columns
@@ -31,6 +32,8 @@ class BitmapEditor
           ensure_matrix { draw_vertical_segment(*args) }
         when "H"
           ensure_matrix { draw_horizontal_segment(*args) }
+        when "F"
+          ensure_matrix { bucket_fill(*args) }
         else
           raise InvalidCommandError.new("Unrecognised command `#{cmd}` - accepts I, S, C, L, V, H")
       end
@@ -113,6 +116,53 @@ class BitmapEditor
 
     @matrix = Matrix[*arr]
   end
+
+  def bucket_fill(column, row, color)
+    arr = matrix.to_a
+
+    column = coerce_to_cell_idx(column)
+    row = coerce_to_cell_idx(row)
+    previous_color = arr[row][column]
+
+    arr = fill_around(arr, column, row, color, previous_color)
+    @matrix = Matrix[*arr]
+  end
+
+  def fill_around(arr, column, row, color, target_color)
+    if arr[row][column] == target_color
+      arr[row][column] = color
+    else
+      return arr
+    end
+
+    start_row = row > 0 ? row - 1 : 0
+    end_column = column < columns - 1 ? column + 1 : columns - 1
+    end_row = row < rows - 1 ? row + 1 : rows - 1
+    start_column = column > 0 ? column - 1 : 0
+
+    if start_column == 0 && end_column == columns - 1 && start_row == 0 && end_row == rows - 1
+      return arr
+    end
+
+    for i in start_column..end_column do
+      arr = fill_around(arr, i, start_row, color, target_color)
+    end
+
+    for i in start_row..end_row do
+      arr = fill_around(arr, end_column, i, color, target_color)
+    end
+
+    for i in start_column..end_column do
+      arr = fill_around(arr, i, end_row, color, target_color)
+    end
+
+    for i in start_row..end_row do
+      arr = fill_around(arr, start_column, i, color, target_color)
+    end
+
+    arr
+  end
+
 
   def ensure_matrix(&block)
     raise MatrixNotPresentError.new("Tried to run a command on an image without creating it first :(") if matrix.nil?
